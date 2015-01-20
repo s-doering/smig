@@ -45,11 +45,11 @@ You can add as many migration files as you like. All _new_ files will run on nex
 
 ## Roadmap ##
 
-##### _v1.0_ #####
+##### _v1.0 (implemented)_ #####
 
 _Initial running and working release._
 
-##### v1.1 #####
+##### __v1.1 (next)__ #####
 
 Exclude migration from running in certain environments via config.  
 Disable migrations running in TEST environment by default.
