@@ -45,24 +45,24 @@ You can add as many migration files as you like. All _new_ files will run on nex
 
 ## Roadmap ##
 
-#### v1.0 ####
+##### _v1.0_ #####
 
-Initial running and working release.
+_Initial running and working release._
 
-#### v1.1 ####
+##### v1.1 #####
 
 Exclude migration from running in certain environments via config.  
 Disable migrations running in TEST environment by default.
 
-#### v1.2 ####
+##### v1.2 #####
 
 Add IntegrationMigrate interface. A possibility for adding migrations only running in TEST environment.
 
-#### v1.3 ####
+##### v1.3 #####
 
 Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.
 
-#### v2.0 ####
+##### v2.0 #####
 
 Add possibility of a depending migration running before an other migration. _This "migration 2" dependsOn "migration 1"_
 
