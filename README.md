@@ -8,6 +8,7 @@ This plugin leaves the database creation and update process in hibernates (more 
 Simply create a migration file for every feature / task / story / fairy tale you develop, put your changes there and on next startup the changes will be made – once.  
 No need to maintain (and merge) a changes file.
 
+
 ## Usage ##
 
 1. Add this line to your applications BuildConfig.groovy
@@ -40,15 +41,31 @@ No need to maintain (and merge) a changes file.
         }
     
 You can add as many migration files as you like. All _new_ files will run on next application startup.
-    
+
+
 ## Roadmap ##
 
-v1.0 Initial running and working release.  
-v1.1 Exclude migration from running in certain environments via config.  
-     Disable migrations running in TEST environment by default.  
-v1.3 Add IntegrationMigrate interface. A possibility for adding migrations only running in TEST environment.  
-v1.4 Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.  
-v2.0 Add possibility of a depending migration running before an other migration. _This "migration 2" dependsOn "migration 1"_
+#### v1.0 ####
+
+Initial running and working release.
+
+#### v1.1 ####
+
+Exclude migration from running in certain environments via config.  
+Disable migrations running in TEST environment by default.
+
+#### v1.2 ####
+
+Add IntegrationMigrate interface. A possibility for adding migrations only running in TEST environment.
+
+#### v1.3 ####
+
+Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.
+
+#### v2.0 ####
+
+Add possibility of a depending migration running before an other migration. _This "migration 2" dependsOn "migration 1"_
+
 
 ## Detailed information ##
 
