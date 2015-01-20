@@ -1,0 +1,39 @@
+<plugin name='smig' version='1.0.0' grailsVersion='2.2 &gt; *'>
+  <author>Steffen Döring</author>
+  <authorEmail>s.doering@wortzwei.de</authorEmail>
+  <title>Simple migrations in Grails</title>
+  <description>
+A simple but yet powerful migration plugin for Grails going a more lightweight
+direction than the standard "Grails Database Migration Plugin".
+This plugin leaves the database creation and update process in hibernates
+skillful hands, but having an easy way to add, change, or delete data on
+applications startup. Need to access your services? No problem. Use them as
+you are used to it in Grails.
+
+Simply create a migration file for every feature / task / story / fairy tale
+you develop, put your changes there and on next startup the changes will be
+made – once.
+No need to maintain (and merge) a changes file.
+</description>
+  <documentation>http://smig.com/plugin/smig</documentation>
+  <type>SmigGrailsPlugin</type>
+  <resources>
+    <resource>com.smig.plugin.MigrationPlugin</resource>
+  </resources>
+  <repositories>
+    <repository name='grailsCentral' url='http://grails.org/plugins' />
+    <repository name='mavenCentral' url='http://repo1.maven.org/maven2/' />
+  </repositories>
+  <dependencies />
+  <plugins>
+    <test>
+      <plugin group='org.grails.plugins' name='hibernate' version='2.2.4' />
+    </test>
+    <build>
+      <plugin group='org.grails.plugins' name='release' version='2.2.1' />
+      <plugin group='org.grails.plugins' name='tomcat' version='2.2.4' />
+    </build>
+  </plugins>
+  <runtimePluginRequirements />
+  <behavior />
+</plugin>
