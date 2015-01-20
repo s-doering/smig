@@ -1,0 +1,1 @@
+Simple migrations in Grails.
