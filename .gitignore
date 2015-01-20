@@ -1,0 +1,11 @@
+# Compiled sources #
+####################
+target/
+
+
+# IDE project files #
+#####################
+.idea/
+*.iml
+.classpath
+.project
