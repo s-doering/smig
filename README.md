@@ -78,9 +78,9 @@ Add possibility of a depending migration running before an other migration. _Thi
 
 ## Detailed information ##
 
-#### Add the plugin to your local repository ####
+#### __*__ Add the plugin to your local repository ####
 
-__*__ Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails Centrals repository, you have to clone this git repository by doing the following commands:
+Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails Centrals repository, you have to clone this git repository by doing the following commands:
 
     git clone https://github.com/s-doering/smig.git
     cd smig.git
