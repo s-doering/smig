@@ -12,7 +12,7 @@ No need to maintain (and merge) a changes file.
 
 ## Usage ##
 
-1. Add this line to the plugins section of your applications BuildConfig.groovy__*__
+1. Add this line to the plugins section of your applications BuildConfig.groovy __*__
 
         runtime ":smig:1.0.0"
 
@@ -70,6 +70,8 @@ Add possibility of a depending migration running before an other migration. _Thi
 
 ## Detailed information ##
 
+#### Add the plugin to your local repository ####
+
 __*__ Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails Centrals repository, you have to clone this git repository by doing the following commands:
 
 git clone https://github.com/s-doering/smig.git
@@ -82,6 +84,6 @@ This will generate the plugin on your local harddrive.
 
 If you have an artifactory yourself. You can add it there, too.
 
----
+#### Order of executed migrations ####
 
 If there is more than one migration file the executed order results from sorting the full qualified class name.
