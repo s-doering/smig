@@ -17,7 +17,6 @@ No need to maintain (and merge) a changes file.
         plugins {
 
             ..
-            ..
 
             runtime ":smig:1.0.0"
 
