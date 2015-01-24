@@ -104,7 +104,7 @@ In this example the migrations won't run in DEV mode and the custom environment 
 
 You can add Grails Environment enums and (G)Strings for custom environments. Any other kind of objects will be ignored bravely.
 
-By default the _TEST_ environment is excluded from running migrations. To change this behaviour you need to add the config without _Environment.TEST_ in it.
+By default the _TEST_ environment is excluded from running migrations. To change this behaviour you need to add the config without _Environment.TEST_ in it like in the example above.
 
 #### Order of executed migrations ####
 
