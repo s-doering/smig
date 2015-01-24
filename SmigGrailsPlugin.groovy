@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContext
 
 class SmigGrailsPlugin {
 
-    def version = "1.0.0"
+    def version = "1.1.0"
 
     def grailsVersion = "2.2 > *"
 
@@ -68,6 +68,6 @@ No need to maintain (and merge) a changes file.
 
         // start the migration procedure
         // (!!): outsourced to a class to make it testable
-        new Smig().doWithApplicationContext(application, applicationContext)
+        new Smig(application).doWithApplicationContext(applicationContext)
     }
 }

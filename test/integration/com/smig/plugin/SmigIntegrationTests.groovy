@@ -16,9 +16,11 @@
 package com.smig.plugin
 
 import com.smig.interfaces.Migrate
+import grails.util.Environment
 import groovy.sql.Sql
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClass
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.hibernate.SessionFactory
 import org.junit.Test
 import org.springframework.context.ApplicationContext
@@ -27,10 +29,12 @@ import javax.sql.DataSource
 
 class SmigIntegrationTests extends GroovyTestCase {
 
-    Smig smig = new Smig()
-
     GrailsApplication grailsApplication
     SessionFactory sessionFactory
+
+    private Smig getSmig() {
+        return new Smig(grailsApplication)
+    }
 
     // testing a private method
     @Test
@@ -50,9 +54,10 @@ class SmigIntegrationTests extends GroovyTestCase {
                     return [new DefaultMigrationClass(MigrateClass1), new DefaultMigrationClass(MigrateClass2), new DefaultMigrationClass(Feature177)] as GrailsClass[]
                 },
         ] as GrailsApplication
+        Smig smig = new Smig(grailsApplication)
 
         // when
-        List<MigrationClass> migrations = smig.getMigrationsToRun(grailsApplication)
+        List<MigrationClass> migrations = smig.getMigrationsToRun()
 
         // then
         assert migrations.collect { it.clazz } == [Feature177.class, MigrateClass2.class]
@@ -62,6 +67,9 @@ class SmigIntegrationTests extends GroovyTestCase {
     @Test
     void 'getSql'() {
         // given
+        Smig smig = getSmig()
+
+        // and
         ApplicationContext applicationContext = grailsApplication.mainContext
 
         // when
@@ -76,6 +84,9 @@ class SmigIntegrationTests extends GroovyTestCase {
     @Test
     void 'createAutowiredMigrateObject'() {
         // given
+        Smig smig = getSmig()
+
+        // and
         def migrationClass1 = new DefaultMigrationClass(MigrateClass1)
         def migrationClass2 = new DefaultMigrationClass(MigrateClass2)
 
@@ -98,23 +109,170 @@ class SmigIntegrationTests extends GroovyTestCase {
         assert migrate2.class == MigrateClass2
     }
 
+    // testing a private method
+    @Test
+    void 'isExcludedEnvironment - default case'() {
+        // given
+        Smig smig = getSmig()
+
+        // when 'no config set, using default excluded environments'
+        boolean excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+    }
+
+    // testing a private method
+    @Test
+    void 'isExcludedEnvironment - config for excluded environments set or current environment is not TEST'() {
+        // given
+        Smig smig = getSmig()
+
+        // and
+        def excludedEnvironments = null
+        Environment currentEnvironment = Environment.TEST
+
+        // and
+        smig.metaClass.getConfig = { String a1, Object a2 ->
+            return excludedEnvironments
+        }
+        smig.metaClass.getCurrentEnvironment = { ->
+            return currentEnvironment
+        }
+
+        // when
+        excludedEnvironments = []
+        boolean excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == false
+
+        // when
+        excludedEnvironments = ['test']
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+
+        // when
+        excludedEnvironments = [Environment.TEST]
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+
+        // when 'untrimmed Strings won't be trimmed'
+        excludedEnvironments = [' test ']
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == false
+
+        // when 'case sensitive comparsion'
+        excludedEnvironments = [' TeSt ']
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == false
+
+        // when
+        excludedEnvironments = [Environment.DEVELOPMENT]
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == false
+
+        // when
+        excludedEnvironments = [Environment.DEVELOPMENT, 'test']
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+
+        // when
+        excludedEnvironments = [Environment.DEVELOPMENT, Environment.TEST]
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+
+        // when
+        currentEnvironment = Environment.CUSTOM
+        currentEnvironment.setName('custom-env')
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == false
+
+        // when
+        excludedEnvironments = ['custom-env']
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+
+        // when 'GStrings will work, too'
+        String value = 'custom'
+        excludedEnvironments = ["${value}-env"]
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == true
+
+        // when 'excluded "Objects" will never work'
+        println 'objects'
+        excludedEnvironments = [smig]
+        excluded = smig.isExcludedEnvironment()
+
+        // then
+        assert excluded == false
+
+        // when 'wrong config value will fail'
+        excludedEnvironments = smig
+        shouldFail(GroovyCastException) {
+            excluded = smig.isExcludedEnvironment()
+        }
+    }
+
+    @Test
+    void 'doWithApplicationContext – TEST environment is excluded'() {
+        // given
+        ApplicationContext applicationContext = grailsApplication.mainContext
+
+        // and: 'safety check'
+        Smig smig = getSmig()
+        smig.metaClass.getSql = { ApplicationContext a1 ->
+            throw new IllegalStateException('If the test call runs through here, there is something wrong.')
+        }
+
+        // when
+        smig.doWithApplicationContext(applicationContext)
+
+        // then
+        assert MigrationPlugin.count() == 0
+    }
+
     @Test
     void 'doWithApplicationContext – happy path'() {
         // given
         ApplicationContext applicationContext = grailsApplication.mainContext
 
-        // and: "mock the grails application, the original application won't find the migration artefacts"
-        GrailsApplication grailsApplication = [
-                getArtefacts: { String type ->
-                    return [new DefaultMigrationClass(MigrateClass1)] as GrailsClass[]
-                },
-        ] as GrailsApplication
-
         // and
         Date currentDate = new Date()
 
+        // and: "mock the grails application, the original application won't find the migration artefacts"
+        GrailsApplication grailsApplication = [
+                getArtefacts : { String type ->
+                    return [new DefaultMigrationClass(MigrateClass1)] as GrailsClass[]
+                },
+                getFlatConfig: { ->
+                    return ['com.smig.plugin.excluded.environments': []] // TEST environment won't be excluded
+                },
+        ] as GrailsApplication
+        Smig smig = new Smig(grailsApplication)
+
         // when
-        smig.doWithApplicationContext(grailsApplication, applicationContext)
+        smig.doWithApplicationContext(applicationContext)
 
         // then
         assert MigrationPlugin.count() == 3
@@ -143,14 +301,19 @@ class SmigIntegrationTests extends GroovyTestCase {
 
         // and: "mock the grails application, the original application won't find the migration artefacts"
         GrailsApplication grailsApplication = [
-                getArtefacts: { String type ->
+                getArtefacts : { String type ->
                     return [new DefaultMigrationClass(MigrateClass2)] as GrailsClass[]
                 },
+                getFlatConfig: { ->
+                    return ['com.smig.plugin.excluded.environments': []] // TEST environment won't be excluded
+                },
         ] as GrailsApplication
+        Smig smig = new Smig(grailsApplication)
 
         // when
+        println 'shouldfail'
         shouldFail(NumberFormatException) {
-            smig.doWithApplicationContext(grailsApplication, applicationContext)
+            smig.doWithApplicationContext(applicationContext)
         }
 
         then:

@@ -16,6 +16,7 @@
 package com.smig.plugin
 
 import com.smig.interfaces.Migrate
+import grails.util.Environment
 import groovy.sql.Sql
 import org.apache.commons.lang.time.StopWatch
 import org.apache.log4j.Logger
@@ -29,15 +30,27 @@ class Smig {
 
     private static final Logger log = Logger.getLogger(Smig.class)
 
-    void doWithApplicationContext(GrailsApplication application, ApplicationContext applicationContext) {
+    private GrailsApplication grailsApplication
+
+    Smig(GrailsApplication grailsApplication) {
+        this.grailsApplication = grailsApplication
+    }
+
+    void doWithApplicationContext(ApplicationContext applicationContext) {
 
         log.info('Starting migrations.')
+
+        // check if the migrations should be skipped – depending on current Grails environment
+        if (isExcludedEnvironment()) {
+            log.info('The migrations will be skipped.')
+            return
+        }
 
         // the sql will be given into every migration instance
         Sql sql = getSql(applicationContext)
 
         // run each not yet executed migration
-        List<MigrationClass> migrations = getMigrationsToRun(application)
+        List<MigrationClass> migrations = getMigrationsToRun()
         migrations.each { MigrationClass migration ->
             try {
                 log.info("Running migration: ${migration.fullName}")
@@ -70,13 +83,13 @@ class Smig {
         log.info('Finished migrations.')
     }
 
-    private List<MigrationClass> getMigrationsToRun(GrailsApplication application) {
+    private List<MigrationClass> getMigrationsToRun() {
         // get all already executed migrations – they won't be executed again
         List<String> executedMigrations = MigrationPlugin.withCriteria {
             projections { property('fullName') }
         }
 
-        List<MigrationClass> migrations = application.getArtefacts(MigrationArtefactHandler.TYPE)
+        List<MigrationClass> migrations = grailsApplication.getArtefacts(MigrationArtefactHandler.TYPE)
                 .findAll({ executedMigrations.contains(it.fullName) == false })
                 .sort({ it.fullName })
         return migrations
@@ -96,4 +109,33 @@ class Smig {
         return migrate
     }
 
+    private boolean isExcludedEnvironment() {
+        List<Object> excludedEnvironments = getConfig('com.smig.plugin.excluded.environments', [Environment.TEST])
+
+        Environment environment = getCurrentEnvironment()
+        boolean excluded = excludedEnvironments.any { isCurrentEnvironment(it, environment) }
+        return excluded
+    }
+
+    private Environment getCurrentEnvironment() {
+        return Environment.getCurrent()
+    }
+
+    private boolean isCurrentEnvironment(String env, Environment current) {
+        return (current.name == env)
+    }
+
+    private boolean isCurrentEnvironment(Environment env, Environment current) {
+        return (env == current)
+    }
+
+    private boolean isCurrentEnvironment(Object ignored, Environment current) {
+        // always false – an Object other than String / Environment can not be matched (safely) to any environment
+        return false
+    }
+
+    private <T> T getConfig(String key, Object defaultValue) {
+        Map<String, Object> config = grailsApplication.flatConfig
+        return (config.containsKey(key) ? config[key] : defaultValue)
+    }
 }

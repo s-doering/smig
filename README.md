@@ -58,14 +58,14 @@ You can add as many migration files as you like. All _new_ migrations will run o
 
 _Initial running and working release._
 
-##### __v1.1 (next)__ #####
+##### _v1.1 (implemented)_ #####
 
-Exclude migration from running in certain environments via config.  
-Disable migrations running in TEST environment by default.
+_Exclude migration from running in certain environments via config._  
+_Disable migrations running in TEST environment by default._
 
-##### v1.2 #####
+##### __v1.2 (next)__ #####
 
-Add IntegrationMigrate interface. A possibility for adding special migrations running before integration tests.
+Specify packages in config to run in certain environments.
 
 ##### v1.3 #####
 
@@ -78,21 +78,49 @@ Add possibility of a depending migration running before an other migration. _Thi
 
 ## Detailed information ##
 
-#### __*__ Add the plugin to your local repository ####
+#### Logging Migrations ####
 
-Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails Centrals repository, you have to clone this git repository by doing the following commands:
+There is logging for migrations as well. Add this line to your log4j config.
 
-    git clone https://github.com/s-doering/smig.git
-    cd smig.git
-    grails clean
-    grails compile
-    grails maven-install
+        log4j.main {
 
-This will generate the plugin on your local harddrive.
+            ..
 
-If you have an artifactory yourself. You can add it there, too.
+            info 'com.smig.plugin'
+
+            ..
+            ..
+        }
+
+"debug" is also possible to squeeze some more information out of it.
+
+#### Exclude environments from running migrations ####
+
+To prevent migrations from running in certain environments, e.g. develop, simply add a line to your Config file.
+
+    com.smig.plugin.excluded.environments = [Environment.DEV, 'custom-env']
+
+In this example the migrations won't run in DEV mode and the custom environment called "custom-dev".
+
+You can add Grails Environment enums and custom environments as (G)Strings. Any other kind of objects will be ignored bravely.
+
+By default the _TEST_ environment is excluded from running migrations. To change this behaviour you need to add the config without _Environment.TEST_ in it.
 
 #### Order of executed migrations ####
 
 If there is more than one migration file the executed order results from sorting the full qualified class name.
+
+#### __*__ Add the plugin to your local repository ####
+
+Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails Centrals repository, you have to clone this git repository by doing the following commands:
+
+        git clone https://github.com/s-doering/smig.git
+        cd smig.git
+        grails clean
+        grails compile
+        grails maven-install
+
+This will generate the plugin on your local harddrive.
+
+If you have an artifactory yourself. You can add it there, too.
 
