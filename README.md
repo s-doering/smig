@@ -70,7 +70,7 @@ Specify packages in config to run in certain environments.
 ##### v1.3 #####
 
 Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.  
-Internal: Make Spock test framework to work within plugin tests.__
+Internal: Make Spock test framework to work within plugin tests.  
 Internal: Inventing a cool smig-ish icon.
 
 ##### v2.0 #####
