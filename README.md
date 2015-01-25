@@ -71,7 +71,7 @@ Specify packages in config to run in certain environments.
 
 Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.  
 Internal: Make Spock test framework to work within plugin tests.  
-Internal: Inventing a cool smig-ish icon.
+Internal: Inventing a cool smig-ish icon to enhance recognition value.
 
 ##### v2.0 #####
 
