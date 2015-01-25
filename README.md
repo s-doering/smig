@@ -79,22 +79,6 @@ Add possibility of a depending migration running before an other migration. _The
 
 ## Detailed information ##
 
-#### Logging Migrations ####
-
-There is logging for migrations as well. Add this line to your log4j config.
-
-        log4j = {
-
-            ..
-
-            info 'com.smig.plugin'
-
-            ..
-            ..
-        }
-
-"debug" is also possible to squeeze some more information out of it.
-
 #### Exclude environments from running migrations ####
 
 By default migrations runs in every environment except _TEST_. You can change this behaviour by adding some lines to your Config file. You can make it environment specific, e.g.:
@@ -114,6 +98,22 @@ By default migrations runs in every environment except _TEST_. You can change th
         }
 
 This will run migrations in every environment except _DEVELOP_.
+
+#### Logging Migrations ####
+
+There is logging for migrations as well. Add this line to your log4j config.
+
+        log4j = {
+
+            ..
+
+            info 'com.smig.plugin'
+
+            ..
+            ..
+        }
+
+"debug" is also possible to squeeze some more information out of it.
 
 #### Order of executed migrations ####
 
