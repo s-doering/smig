@@ -17,6 +17,6 @@ package com.smig.plugin;
 
 import org.codehaus.groovy.grails.commons.InjectableGrailsClass;
 
-interface MigrationClass extends InjectableGrailsClass {
+public interface MigrationClass extends InjectableGrailsClass {
 
 }

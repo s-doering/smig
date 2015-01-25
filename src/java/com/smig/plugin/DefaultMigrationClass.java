@@ -17,9 +17,9 @@ package com.smig.plugin;
 
 import org.codehaus.groovy.grails.commons.AbstractInjectableGrailsClass;
 
-class DefaultMigrationClass extends AbstractInjectableGrailsClass implements MigrationClass {
+public class DefaultMigrationClass extends AbstractInjectableGrailsClass implements MigrationClass {
 
-    public DefaultMigrationClass(Class clazz) {
+    public DefaultMigrationClass(Class<?> clazz) {
         super(clazz, MigrationArtefactHandler.TYPE);
     }
 }

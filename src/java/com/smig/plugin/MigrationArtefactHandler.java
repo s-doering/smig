@@ -20,7 +20,7 @@ import org.codehaus.groovy.grails.commons.ArtefactHandlerAdapter;
 
 import java.lang.reflect.Constructor;
 
-class MigrationArtefactHandler extends ArtefactHandlerAdapter {
+public class MigrationArtefactHandler extends ArtefactHandlerAdapter {
 
     public static final String TYPE = "Migration";
 
