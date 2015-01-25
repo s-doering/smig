@@ -69,11 +69,12 @@ Specify packages in config to run in certain environments.
 
 ##### v1.3 #####
 
-Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.
+Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.  
+Internal: Make Spock test framework to work within plugin tests.
 
 ##### v2.0 #####
 
-Add possibility of a depending migration running before an other migration. _This "migration 2" dependsOn "migration 1"._
+Add possibility of a depending migration running before an other migration. _The "migration 2" dependsOn "migration 1"._
 
 
 ## Detailed information ##
@@ -82,7 +83,7 @@ Add possibility of a depending migration running before an other migration. _Thi
 
 There is logging for migrations as well. Add this line to your log4j config.
 
-        log4j.main {
+        log4j = {
 
             ..
 
@@ -96,15 +97,23 @@ There is logging for migrations as well. Add this line to your log4j config.
 
 #### Exclude environments from running migrations ####
 
-To prevent migrations from running in certain environments, e.g. develop, simply add a line to your Config file.
+By default migrations runs in every environment except _TEST_. You can change this behaviour by adding some lines to your Config file. You can make it environment specific, e.g.:
 
-    com.smig.plugin.excluded.environments = [Environment.DEV, 'custom-env']
+        smig.enabled = true
 
-In this example the migrations won't run in DEV mode and the custom environment called "custom-dev".
+        environments {
+            develop {
 
-You can add Grails Environment enums and (G)Strings for custom environments. Any other kind of objects will be ignored bravely.
+                ..
 
-By default the _TEST_ environment is excluded from running migrations. To change this behaviour you need to add the config without _Environment.TEST_ in it like in the example above.
+                smig.enabled = false
+
+                ..
+                ..
+            }
+        }
+
+This will run migrations in every environment except _DEVELOP_.
 
 #### Order of executed migrations ####
 

@@ -31,9 +31,27 @@ class Smig {
     private static final Logger log = Logger.getLogger(Smig.class)
 
     private GrailsApplication grailsApplication
+    private Map<String, Object> config
 
     Smig(GrailsApplication grailsApplication) {
         this.grailsApplication = grailsApplication
+        this.config = enhanceApplicationConfigWithSmigDefaults(grailsApplication)
+    }
+
+    private Map<String, Object> enhanceApplicationConfigWithSmigDefaults(GrailsApplication grailsApplication) {
+
+        log.debug('Loading config for migrations.')
+
+        // load the default Smig config
+        // inspired by Grails Quartz Plugin: http://grails.org/plugin/quartz
+        ConfigObject config = grailsApplication.config.flatten(null)
+
+        GroovyClassLoader classLoader = new GroovyClassLoader(getClass().classLoader)
+        ConfigObject newConfig = new ConfigSlurper(Environment.getCurrent().getName())
+                .parse(classLoader.loadClass('DefaultSmigConfig')).flatten(null)
+
+        // Overwrite defaults with what Config.groovy has supplied, perhaps from external files
+        return newConfig.merge(config)
     }
 
     void doWithApplicationContext(ApplicationContext applicationContext) {
@@ -41,7 +59,7 @@ class Smig {
         log.info('Starting migrations.')
 
         // check if the migrations should be skipped – depending on current Grails environment
-        if (isExcludedEnvironment()) {
+        if (skipMigrations()) {
             log.info('The migrations will be skipped.')
             return
         }
@@ -109,33 +127,21 @@ class Smig {
         return migrate
     }
 
-    private boolean isExcludedEnvironment() {
-        List<Object> excludedEnvironments = getConfig('com.smig.plugin.excluded.environments', [Environment.TEST])
-
-        Environment environment = getCurrentEnvironment()
-        boolean excluded = excludedEnvironments.any { isCurrentEnvironment(it, environment) }
-        return excluded
+    private boolean skipMigrations() {
+        Object config = getConfig('smig.enabled', true)
+        return (toBoolean(config) == false)
     }
 
-    private Environment getCurrentEnvironment() {
-        return Environment.getCurrent()
+    private boolean toBoolean(Boolean value) {
+        return value
     }
 
-    private boolean isCurrentEnvironment(String env, Environment current) {
-        return (current.name == env)
-    }
-
-    private boolean isCurrentEnvironment(Environment env, Environment current) {
-        return (env == current)
-    }
-
-    private boolean isCurrentEnvironment(Object ignored, Environment current) {
-        // always false – an Object other than String / Environment can not be matched (safely) to any environment
+    private boolean toBoolean(Object ignored) {
+        // always false – any Object other than Boolean is not allowed for a boolean config
         return false
     }
 
     private <T> T getConfig(String key, Object defaultValue) {
-        Map<String, Object> config = grailsApplication.flatConfig
         return (config.containsKey(key) ? config[key] : defaultValue)
     }
 }

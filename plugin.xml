@@ -1,4 +1,4 @@
-<plugin name='smig' version='1.1.0.1' grailsVersion='2.2 &gt; *'>
+<plugin name='smig' version='1.1.0.14' grailsVersion='2.2 &gt; *'>
   <author>Steffen Döring</author>
   <authorEmail>s.doering@wortzwei.de</authorEmail>
   <title>Simple migrations in Grails</title>
@@ -18,6 +18,7 @@ No need to maintain (and merge) a changes file.
   <documentation>http://smig.com/plugin/smig</documentation>
   <type>SmigGrailsPlugin</type>
   <resources>
+    <resource>DefaultSmigConfig</resource>
     <resource>com.smig.plugin.MigrationPlugin</resource>
   </resources>
   <repositories>

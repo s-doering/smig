@@ -16,11 +16,10 @@
 package com.smig.plugin
 
 import com.smig.interfaces.Migrate
-import grails.util.Environment
 import groovy.sql.Sql
+import org.apache.commons.io.FileUtils
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClass
-import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.hibernate.SessionFactory
 import org.junit.Test
 import org.springframework.context.ApplicationContext
@@ -34,6 +33,47 @@ class SmigIntegrationTests extends GroovyTestCase {
 
     private Smig getSmig() {
         return new Smig(grailsApplication)
+    }
+
+    private ConfigObject createConfigFromString(String configContent) {
+        File configFile = File.createTempFile('config', 'groovy')
+        FileUtils.writeStringToFile(configFile, configContent)
+        return new ConfigSlurper('test' /* test environment */).parse(configFile.toURI().toURL())
+    }
+
+    @Test
+    void 'constructor'() {
+        // given
+        ConfigObject config = createConfigFromString('''
+smig.more.config = 'more Config'
+
+environments {
+    test {
+        smig {
+            is.fantastic = true
+        }
+    }
+}
+''')
+
+        GrailsApplication grailsApplication = [
+                getConfig: { ->
+                    return config
+                },
+                isVerify : { ->
+                    return true
+                },
+        ] as GrailsApplication
+
+        // when
+        Smig smig = new Smig(grailsApplication)
+
+        // then
+        assert smig.grailsApplication == grailsApplication
+        assert smig.config['smig.is.fantastic'] == true
+        assert smig.config['smig.enabled'] == false
+        assert smig.config['smig.more.config'] == 'more Config'
+        assert smig.config.findAll({ it.key.startsWith('smig') }).size() == 3
     }
 
     // testing a private method
@@ -52,6 +92,9 @@ class SmigIntegrationTests extends GroovyTestCase {
                 getArtefacts: { String type ->
                     assert type == 'Migration'
                     return [new DefaultMigrationClass(MigrateClass1), new DefaultMigrationClass(MigrateClass2), new DefaultMigrationClass(Feature177)] as GrailsClass[]
+                },
+                getConfig   : {
+                    return new ConfigObject()
                 },
         ] as GrailsApplication
         Smig smig = new Smig(grailsApplication)
@@ -111,145 +154,51 @@ class SmigIntegrationTests extends GroovyTestCase {
 
     // testing a private method
     @Test
-    void 'isExcludedEnvironment - default case'() {
-        // given
-        Smig smig = getSmig()
-
-        // when 'no config set, using default excluded environments'
-        boolean excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == true
-    }
-
-    // testing a private method
-    @Test
-    void 'isExcludedEnvironment - config for excluded environments set or current environment is not TEST'() {
+    void 'skipMigrations'() {
         // given
         Smig smig = getSmig()
 
         // and
-        def excludedEnvironments = null
-        Environment currentEnvironment = Environment.TEST
+        def configValue = null
 
         // and
         smig.metaClass.getConfig = { String a1, Object a2 ->
-            return excludedEnvironments
-        }
-        smig.metaClass.getCurrentEnvironment = { ->
-            return currentEnvironment
+            return configValue
         }
 
         // when
-        excludedEnvironments = []
-        boolean excluded = smig.isExcludedEnvironment()
+        boolean skip = smig.skipMigrations()
 
         // then
-        assert excluded == false
+        assert skip == true
 
         // when
-        excludedEnvironments = ['test']
-        excluded = smig.isExcludedEnvironment()
+        configValue = true
+        skip = smig.skipMigrations()
 
         // then
-        assert excluded == true
+        assert skip == false
 
         // when
-        excludedEnvironments = [Environment.TEST]
-        excluded = smig.isExcludedEnvironment()
+        configValue = false
+        skip = smig.skipMigrations()
 
         // then
-        assert excluded == true
-
-        // when 'untrimmed Strings won't be trimmed'
-        excludedEnvironments = [' test ']
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == false
-
-        // when 'case sensitive comparsion'
-        excludedEnvironments = [' TeSt ']
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == false
+        assert skip == true
 
         // when
-        excludedEnvironments = [Environment.DEVELOPMENT]
-        excluded = smig.isExcludedEnvironment()
+        configValue = ['list']
+        skip = smig.skipMigrations()
 
         // then
-        assert excluded == false
+        assert skip == true
 
         // when
-        excludedEnvironments = [Environment.DEVELOPMENT, 'test']
-        excluded = smig.isExcludedEnvironment()
+        configValue = smig
+        skip = smig.skipMigrations()
 
         // then
-        assert excluded == true
-
-        // when
-        excludedEnvironments = [Environment.DEVELOPMENT, Environment.TEST]
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == true
-
-        // when
-        currentEnvironment = Environment.CUSTOM
-        currentEnvironment.setName('custom-env')
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == false
-
-        // when
-        excludedEnvironments = ['custom-env']
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == true
-
-        // when 'GStrings will work, too'
-        String value = 'custom'
-        excludedEnvironments = ["${value}-env"]
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == true
-
-        // when 'excluded "Objects" will never work'
-        println 'objects'
-        excludedEnvironments = [smig]
-        excluded = smig.isExcludedEnvironment()
-
-        // then
-        assert excluded == false
-
-        // when 'wrong config value will fail'
-        excludedEnvironments = smig
-        shouldFail(GroovyCastException) {
-            excluded = smig.isExcludedEnvironment()
-        }
-    }
-
-    @Test
-    void 'doWithApplicationContext – TEST environment is excluded'() {
-        // given
-        ApplicationContext applicationContext = grailsApplication.mainContext
-
-        // and: 'safety check'
-        Smig smig = getSmig()
-        smig.metaClass.getSql = { ApplicationContext a1 ->
-            throw new IllegalStateException('If the test call runs through here, there is something wrong.')
-        }
-
-        // when
-        smig.doWithApplicationContext(applicationContext)
-
-        // then
-        assert MigrationPlugin.count() == 0
+        assert skip == true
     }
 
     @Test
@@ -260,13 +209,16 @@ class SmigIntegrationTests extends GroovyTestCase {
         // and
         Date currentDate = new Date()
 
+        // and: 'create config which runs migrations in tests'
+        ConfigObject config = createConfigFromString('smig.enabled = true')
+
         // and: "mock the grails application, the original application won't find the migration artefacts"
         GrailsApplication grailsApplication = [
-                getArtefacts : { String type ->
+                getArtefacts: { String type ->
                     return [new DefaultMigrationClass(MigrateClass1)] as GrailsClass[]
                 },
-                getFlatConfig: { ->
-                    return ['com.smig.plugin.excluded.environments': []] // TEST environment won't be excluded
+                getConfig   : {
+                    return config
                 },
         ] as GrailsApplication
         Smig smig = new Smig(grailsApplication)
@@ -299,13 +251,16 @@ class SmigIntegrationTests extends GroovyTestCase {
         // given
         ApplicationContext applicationContext = grailsApplication.mainContext
 
+        // and: 'create config which runs migrations in tests'
+        ConfigObject config = createConfigFromString('smig.enabled = true')
+
         // and: "mock the grails application, the original application won't find the migration artefacts"
         GrailsApplication grailsApplication = [
-                getArtefacts : { String type ->
+                getArtefacts: { String type ->
                     return [new DefaultMigrationClass(MigrateClass2)] as GrailsClass[]
                 },
-                getFlatConfig: { ->
-                    return ['com.smig.plugin.excluded.environments': []] // TEST environment won't be excluded
+                getConfig   : {
+                    return config
                 },
         ] as GrailsApplication
         Smig smig = new Smig(grailsApplication)
