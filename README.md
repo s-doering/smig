@@ -12,7 +12,7 @@ No need to maintain (and merge) a changes file.
 
 ## Usage ##
 
-1. Add this line to the plugins section of your applications BuildConfig.groovy __(not that easy yet*)__
+1. Add this line to the plugins section of your applications BuildConfig.groovy __(not that easy yet, see below*)__
 
         plugins {
 
@@ -82,19 +82,15 @@ Add possibility of a depending migration running before an other migration. _The
 
 #### Exclude environments from running migrations ####
 
-By default migrations runs in every environment except _TEST_. You can change this behaviour by adding some lines to your Config file. You can make it environment specific, e.g.:
+By default migrations run in every environment except _TEST_. You can change this behaviour by adding some lines to your Config file. You can make it environment specific, e.g.:
 
         smig.enabled = true
 
         environments {
+
             develop {
 
-                ..
-
                 smig.enabled = false
-
-                ..
-                ..
             }
         }
 
