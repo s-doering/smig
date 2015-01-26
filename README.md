@@ -91,6 +91,7 @@ By default migrations run in every environment except _TEST_. You can change thi
             develop {
 
                 smig.enabled = false
+
             }
         }
 
