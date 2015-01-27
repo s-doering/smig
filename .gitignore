@@ -1,6 +1,7 @@
 # Compiled sources #
 ####################
 target/
+grails-smig-*.zip*
 
 
 # IDE project files #
