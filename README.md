@@ -114,7 +114,8 @@ By default all found, not yet run migrations will be executed. You can change th
 
             custom-env {
 
-                smig.included.migrations = ['com.project.migrations.database', ~/[Cc]ustom/] // regex pattern
+                // example with regex pattern
+                smig.included.migrations = ['com.project.migrations.database', ~/[Cc]ustom/]
 
             }
         }
@@ -126,8 +127,8 @@ This config specifies the packages for the migrations to run. Using package name
 2. finding _(not matching)_ the specified Pattern (java.util.regex.Pattern)
 
 __Beware:__  
-The config _smig.included.migrations_ has to be a collection. Any other kind of object will fail and abort the application with an error.  
-Setting _NULL_ or an empty list will result in never finding any migrations.
+The config _smig.included.migrations_ has to be a collection. Any other kind of object will fail and abort the application with a meaningful error.  
+Setting _null_ or an empty list will result in never finding any migrations.
 
 #### Logging Migrations ####
 
