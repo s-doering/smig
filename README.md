@@ -121,12 +121,13 @@ By default all found, not yet run migrations will be executed. You can change th
 
 This config specifies the packages for the migrations to run. Using package names is just a recommendation. All migrations will be found
 
-1. containing _not beginning_ the specified Strings
+1. containing _(not beginning)_ the specified Strings
 
-2. finding _not matching_ the specified (java.util.regex.)Pattern
+2. finding _(not matching)_ the specified Pattern (java.util.regex.Pattern)
 
-Beware: The config _smig.included.migrations_ has to be a collection. Any other kind of object will fail and abort the application with an error.  
-Setting NULL or an empty list will result in never finding any migrations.
+__Beware:__  
+The config _smig.included.migrations_ has to be a collection. Any other kind of object will fail and abort the application with an error.  
+Setting _NULL_ or an empty list will result in never finding any migrations.
 
 #### Logging Migrations ####
 
