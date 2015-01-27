@@ -21,6 +21,7 @@ import groovy.sql.Sql
 import org.apache.commons.lang.time.StopWatch
 import org.apache.log4j.Logger
 import org.codehaus.groovy.grails.commons.GrailsApplication
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 
@@ -108,12 +109,21 @@ class Smig {
             projections { property('fullName') }
         }
 
-        List<Object> includedMigrations = getConfig('smig.included.migrations', ['' /* an always matching "pattern" */])
+        List<Object> includedMigrations = getIncludedMigrations()
         List<MigrationClass> migrations = grailsApplication.getArtefacts(MigrationArtefactHandler.TYPE)
                 .findAll({ executedMigrations.contains(it.fullName) == false })
                 .findAll({ includedMigrations.any { Object pattern -> isMigrationIncluded(pattern, it.fullName) } })
                 .sort({ it.fullName })
         return migrations
+    }
+
+    private List<Object> getIncludedMigrations() {
+        try {
+            return getConfig('smig.included.migrations', ['' /* an always matching "pattern" */])
+        }
+        catch (GroovyCastException e) {
+            throw new IllegalStateException('The config "smig.included.migrations" has to be a collection.')
+        }
     }
 
     private Sql getSql(ApplicationContext applicationContext) {

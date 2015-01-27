@@ -20,7 +20,6 @@ import groovy.sql.Sql
 import org.apache.commons.io.FileUtils
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClass
-import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.hibernate.SessionFactory
 import org.junit.Test
 import org.springframework.context.ApplicationContext
@@ -147,13 +146,13 @@ environments {
 
         // and
         GrailsApplication grailsApplication = [
-                getArtefacts: { String type -> return [new DefaultMigrationClass(MigrateClass1)] as GrailsClass[] },
+                getArtefacts: { String type -> return [] as GrailsClass[] },
                 getConfig   : { -> return config },
         ] as GrailsApplication
         Smig smig = new Smig(grailsApplication)
 
         // when
-        shouldFail(GroovyCastException) {
+        shouldFail(IllegalStateException) {
             smig.getMigrationsToRun()
         }
     }
