@@ -18,7 +18,7 @@ No need to maintain (and merge) a changes file.
 
             ..
 
-            runtime ":smig:1.0.0"
+            runtime ":smig:1.2.0"
 
             ..
             ..
@@ -63,11 +63,11 @@ _Initial running and working release._
 _Exclude migration from running in certain environments via config._  
 _Disable migrations running in TEST environment by default._
 
-##### __v1.2 (next)__ #####
+##### _v1.2 (implemented)_ #####
 
-Specify packages in config to run in certain environments.
+_Specify packages in config to run in certain environments._
 
-##### v1.3 #####
+##### __v1.3 (next)__ #####
 
 Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.  
 Internal: Make Spock test framework to work within plugin tests.  
@@ -82,7 +82,7 @@ Add possibility of a depending migration running before an other migration. _The
 
 #### Exclude environments from running migrations ####
 
-By default migrations run in every environment except _TEST_. You can change this behaviour by adding some lines to your Config file. You can make it environment specific, e.g.:
+By default migrations run in every environment except _TEST_. You can change this behaviour by adding a config. You can make it environment specific, e.g.:
 
         smig.enabled = true
 
@@ -96,6 +96,37 @@ By default migrations run in every environment except _TEST_. You can change thi
         }
 
 This will run migrations in every environment except _DEVELOP_.
+
+#### Restrict migrations to specific environments ####
+
+By default all found, not yet run migrations will be executed. You can change this behaviour by specifying some "patterns" applying to the full migration class names.
+
+        smig.included.migrations = ['com.project.migrations.production']
+
+        environments {
+
+            test {
+
+                smig.enabled = true // is disabled by default
+                smig.included.migrations = ['com.project.migrations.integration']
+
+            }
+
+            custom-env {
+
+                smig.included.migrations = ['com.project.migrations.database', ~/[Cc]ustom/] // regex pattern
+
+            }
+        }
+
+This config specifies the packages for the migrations to run. Using package names is just a recommendation. All migrations will be found
+
+1. containing _not beginning_ the specified Strings
+
+2. finding _not matching_ the specified (java.util.regex.)Pattern
+
+Beware: The config _smig.included.migrations_ has to be a collection. Any other kind of object will fail and abort the application with an error.  
+Setting NULL or an empty list will result in never finding any migrations.
 
 #### Logging Migrations ####
 

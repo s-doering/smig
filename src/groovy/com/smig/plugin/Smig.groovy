@@ -25,6 +25,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory
 import org.springframework.context.ApplicationContext
 
 import javax.sql.DataSource
+import java.util.regex.Pattern
 
 class Smig {
 
@@ -107,8 +108,10 @@ class Smig {
             projections { property('fullName') }
         }
 
+        List<Object> includedMigrations = getConfig('smig.included.migrations', ['' /* an always matching "pattern" */])
         List<MigrationClass> migrations = grailsApplication.getArtefacts(MigrationArtefactHandler.TYPE)
                 .findAll({ executedMigrations.contains(it.fullName) == false })
+                .findAll({ includedMigrations.any { Object pattern -> isMigrationIncluded(pattern, it.fullName) } })
                 .sort({ it.fullName })
         return migrations
     }
@@ -138,6 +141,19 @@ class Smig {
 
     private boolean toBoolean(Object ignored) {
         // always false – any Object other than Boolean is not allowed for a boolean config
+        return false
+    }
+
+    private boolean isMigrationIncluded(String sequence, String migrationClass) {
+        return migrationClass.contains(sequence)
+    }
+
+    private boolean isMigrationIncluded(Pattern pattern, String migrationClass) {
+        return pattern.matcher(migrationClass).find() // (!!): finding not matching
+    }
+
+    private boolean isMigrationIncluded(Object ignored, String migrationClass) {
+        // always false – any Object other than String or Pattern can not match the migration class
         return false
     }
 

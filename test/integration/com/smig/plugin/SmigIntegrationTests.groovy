@@ -20,6 +20,7 @@ import groovy.sql.Sql
 import org.apache.commons.io.FileUtils
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClass
+import org.codehaus.groovy.runtime.typehandling.GroovyCastException
 import org.hibernate.SessionFactory
 import org.junit.Test
 import org.springframework.context.ApplicationContext
@@ -78,7 +79,7 @@ environments {
 
     // testing a private method
     @Test
-    void 'getMigrationsToRun'() {
+    void 'getMigrationsToRun – some migrations already run'() {
         // given
         new MigrationPlugin(fullName: 'com.smig.plugin.MigrateClass1', shortName: 'MigrateClass1',
                 migrationDate: new Date()).save()
@@ -104,6 +105,57 @@ environments {
 
         // then
         assert migrations.collect { it.clazz } == [Feature177.class, MigrateClass2.class]
+    }
+
+    @Test
+    void 'getMigrationsToRun – matching migration classes to run'() {
+        // given: "create a config with included migration pattern"
+        List<Map> where = [
+                [config: 'smig.included.migrations = []', matchingMigrations: []],
+                [config: 'smig.included.migrations = null' /* NULL implements any {} and delivers always false */, matchingMigrations: []],
+                [config: 'smig.included.migrations = [new com.smig.plugin.Feature177()]', matchingMigrations: []],
+                [config: 'smig.included.migrations = ["com.smig.plugin"]', matchingMigrations: [Feature177, MigrateClass1, MigrateClass2]],
+                [config: 'smig.included.migrations = ["1"]', matchingMigrations: [Feature177, MigrateClass1]],
+                [config: 'smig.included.migrations = [~/2/]', matchingMigrations: [MigrateClass2]],
+                [config: 'smig.included.migrations = [~/e.*e/]', matchingMigrations: [Feature177]],
+                [config: 'smig.included.migrations = [~/e.*e/, "ass1"]', matchingMigrations: [Feature177, MigrateClass1]],
+        ]
+
+        for (Map testValues : where) {
+            // and: "create the config"
+            ConfigObject config = createConfigFromString(testValues['config'])
+
+            // and
+            GrailsApplication grailsApplication = [
+                    getArtefacts: { String type -> return [new DefaultMigrationClass(MigrateClass1), new DefaultMigrationClass(MigrateClass2), new DefaultMigrationClass(Feature177)] as GrailsClass[] },
+                    getConfig   : { -> return config },
+            ] as GrailsApplication
+            Smig smig = new Smig(grailsApplication)
+
+            // when
+            List<MigrationClass> migrations = smig.getMigrationsToRun()
+
+            // then
+            assert migrations.collect { it.clazz } == testValues['matchingMigrations']
+        }
+    }
+
+    @Test
+    void 'getMigrationsToRun – invalid migration pattern'() {
+        // and: "create the invalid config"
+        ConfigObject config = createConfigFromString('smig.included.migrations = java.util.Locale.JAPAN')
+
+        // and
+        GrailsApplication grailsApplication = [
+                getArtefacts: { String type -> return [new DefaultMigrationClass(MigrateClass1)] as GrailsClass[] },
+                getConfig   : { -> return config },
+        ] as GrailsApplication
+        Smig smig = new Smig(grailsApplication)
+
+        // when
+        shouldFail(GroovyCastException) {
+            smig.getMigrationsToRun()
+        }
     }
 
     // testing a private method
@@ -266,7 +318,6 @@ environments {
         Smig smig = new Smig(grailsApplication)
 
         // when
-        println 'shouldfail'
         shouldFail(NumberFormatException) {
             smig.doWithApplicationContext(applicationContext)
         }

@@ -19,7 +19,7 @@ import org.springframework.context.ApplicationContext
 
 class SmigGrailsPlugin {
 
-    def version = "1.1.0"
+    def version = "1.2.0"
 
     def grailsVersion = "2.2 > *"
 
