@@ -8,3 +8,6 @@
 //
 //    ant.mkdir(dir:"${basedir}/grails-app/jobs")
 //
+
+// create the migrations folder
+ant.mkdir(dir: "${basedir}/grails-app/migrations")

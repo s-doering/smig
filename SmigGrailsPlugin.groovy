@@ -19,12 +19,11 @@ import org.springframework.context.ApplicationContext
 
 class SmigGrailsPlugin {
 
-    def version = "1.2.0"
+    def version = "1.3.0"
 
-    def grailsVersion = "2.2 > *"
+    def grailsVersion = "2.1 > *"
 
     def pluginExcludes = [
-            "grails-app/migrations/**"
     ]
 
     def title = "Simple migrations in Grails"
@@ -57,10 +56,10 @@ No need to maintain (and merge) a changes file.
 //    def developers = [ [ name: "Joe Bloggs", email: "joe@bloggs.net" ]]
 
     // Location of the plugin's issue tracker.
-//    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
+    def issueManagement = [ system: 'GitHub', url: 'https://github.com/s-doering/smig/issues' ]
 
     // Online location of the plugin's browseable source code.
-//    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
+    def scm = [ url: 'https://github.com/s-doering/smig' ]
 
     def artefacts = [new MigrationArtefactHandler()]
 

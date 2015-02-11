@@ -60,7 +60,7 @@ class Smig {
 
         log.info('Starting migrations.')
 
-        // check if the migrations should be skipped – depending on current Grails environment
+        // check if the migrations should be skipped – depending on Config
         if (skipMigrations()) {
             log.info('The migrations will be skipped.')
             return
@@ -79,15 +79,15 @@ class Smig {
                 // create a migration instance, the services will be injected
                 Migrate migrate = createAutowiredMigrateObject(migration.fullName, applicationContext)
 
-                // run the migration
-                MigrationPlugin.withNewSession {
+                // run the migration within a new session (to assure that there is a session)
+                MigrationPlugin.withNewSession { // changes will be automatically flushed after end of this closure
                     migrate.migrate(sql)
                 }
 
                 // the migration was successful, save it as executed – so it won't be executed
-                // on next application start up
+                // on next application start up again
                 Class<?> clazz = migrate.class
-                MigrationPlugin.withTransaction {
+                MigrationPlugin.withNewSession {
                     new MigrationPlugin(fullName: clazz.name, shortName: clazz.simpleName,
                             migrationDate: new Date()).save(failOnError: true)
                 }

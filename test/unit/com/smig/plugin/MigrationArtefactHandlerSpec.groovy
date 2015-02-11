@@ -16,39 +16,30 @@
 package com.smig.plugin
 
 import com.smig.interfaces.Migrate
-import grails.test.mixin.TestMixin
-import grails.test.mixin.support.GrailsUnitTestMixin
 import groovy.sql.Sql
-import org.junit.Test
+import spock.lang.Specification
 
-@TestMixin(GrailsUnitTestMixin)
-class MigrationArtefactHandlerTests {
+class MigrationArtefactHandlerSpec extends Specification {
 
-    def artefactHandler = new MigrationArtefactHandler()
+    def 'isArtefactClass – migration artefacts will be identified correctly'() {
+        given:
+        def artefactHandler = new MigrationArtefactHandler()
 
-    @Test
-    void 'isArtefactClass'() {
+        when:
+        boolean result = artefactHandler.isArtefactClass(clazz)
 
-        // Test:
-        assert false == artefactHandler.isArtefactClass(null)
+        then:
+        result == migrateArtefact
 
-        // Test:
-        assert false == artefactHandler.isArtefactClass(TestClassNoMigrateInterface)
-
-        // Test:
-        assert false == artefactHandler.isArtefactClass(TestClassNoDefaultConstructor)
-
-        // Test:
-        assert false == artefactHandler.isArtefactClass(TestClassMultipleConstructors)
-
-        // Test:
-        assert false == artefactHandler.isArtefactClass(TestClassPrivateConstructor)
-
-        // Test:
-        assert true == artefactHandler.isArtefactClass(TestClassGoodMigrate1)
-
-        // Test:
-        assert true == artefactHandler.isArtefactClass(TestClassGoodMigrate2)
+        where:
+        clazz                         || migrateArtefact
+        null                          || false
+        TestClassNoMigrateInterface   || false
+        TestClassNoDefaultConstructor || false
+        TestClassMultipleConstructors || false
+        TestClassPrivateConstructor   || false
+        TestClassGoodMigrate1         || true
+        TestClassGoodMigrate2         || true
     }
 }
 

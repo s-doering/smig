@@ -9,7 +9,7 @@ grails.project.dependency.resolution = {
         // excludes 'ehcache'
     }
     log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
-    legacyResolve false
+//  legacyResolve false
     // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
     repositories {
         grailsCentral()
@@ -29,9 +29,13 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        test(":hibernate:$grailsVersion")
+        // Spock and Hibernate were commented so it can be easily used with other projects
+        // without configuring the plugins, just use "maven-install". This works with Grails
+        // versions 2.1, 2.2, 2.3 and 2.4.
+        // Uncomment this if you develop and test this plugin.
+//        test(":hibernate:$grailsVersion")
+//        test(":spock:0.7")
 
-        build(":tomcat:$grailsVersion")
         build(":release:2.2.1")
         build(":rest-client-builder:1.0.3") {
             export = false
