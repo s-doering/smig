@@ -73,7 +73,7 @@ _Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.
 ⤷ Grails 2.0 didn't work, Grails 2.1 is now minimum.  
 _Internal: Make Spock test framework to work within plugin tests._  
 _Internal: Inventing a cool smig-ish icon to enhance recognition value._  
-⤷ see v2.1
+⤷ idea ready, see v2.1
 
 ##### v2.0 (next) #####
 
@@ -162,7 +162,7 @@ Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails
 
         git clone https://github.com/s-doering/smig.git
         cd smig.git
-        ** change "app.grails.version" in application.properties to your used Grails version **
+        ** change "app.grails.version" in application.properties to your Grails version **
         grails clean
         grails compile
         grails maven-install
@@ -171,14 +171,4 @@ This will generate the plugin on your local harddrive.
 
 If you have an artifactory yourself. You can add it there, too.
 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 ###### The plugin requires Grails v2.1 or higher. ######
