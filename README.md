@@ -70,7 +70,7 @@ _Specify packages in config to run in certain environments._
 ##### _v1.3 (implemented)_ #####
 
 _Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2._  
-⤷ Grails 2.0 didn't work, Grails 2.1 is now minimum.  
+⤷ Grails 2.0 didn't work, Grails 2.1 is now minimum  
 _Internal: Make Spock test framework to work within plugin tests._  
 _Internal: Inventing a cool smig-ish icon to enhance recognition value._  
 ⤷ idea for an icon ready, see v2.1
