@@ -18,7 +18,7 @@ No need to maintain (and merge) a changes file.
 
             ..
 
-            runtime ":smig:1.2.0"
+            runtime ":smig:1.3.0"
 
             ..
             ..
@@ -67,15 +67,19 @@ _Disable migrations running in TEST environment by default._
 
 _Specify packages in config to run in certain environments._
 
-##### __v1.3 (next)__ #####
+##### _v1.3 (implemented)_ #####
 
-Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2.  
-Internal: Make Spock test framework to work within plugin tests.  
-Internal: Inventing a cool smig-ish icon to enhance recognition value.
+_Enhance Grails compability down to version Grails 2.0 – currently Grails 2.2._ (Grails 2.0 didn't work, Grails 2.1 is now minimum.)  
+_Internal: Make Spock test framework to work within plugin tests._  
+_Internal: Inventing a cool smig-ish icon to enhance recognition value._ (see v2.1)
 
-##### v2.0 #####
+##### v2.0 (next) #####
 
 Add possibility of a depending migration running before an other migration. _The "migration 2" dependsOn "migration 1"._
+
+##### v2.1 #####
+
+The idea for the smig-ish icon (see v1.3) needs to be polished and digitized.
 
 
 ## Detailed information ##
@@ -156,6 +160,7 @@ Unfortunately it's not that easy yet. Unless this plugin is not hosted on Grails
 
         git clone https://github.com/s-doering/smig.git
         cd smig.git
+        _*** change the "app.grails.version" in application.properties to your used Grails version ***_
         grails clean
         grails compile
         grails maven-install
@@ -164,3 +169,5 @@ This will generate the plugin on your local harddrive.
 
 If you have an artifactory yourself. You can add it there, too.
 
+
+###### The plugin requires Grails v2.1 or higher. ######
